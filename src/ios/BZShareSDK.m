@@ -101,6 +101,7 @@ int const QQ_CLIENT = 3;
     }];
 }
 
+
 - (void)isInstallClient:(CDVInvokedUrlCommand*)command
 {
     BOOL isInstallClient = NO;
