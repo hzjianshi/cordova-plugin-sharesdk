@@ -189,12 +189,13 @@
         <!-- Other required frameworks -->
         <framework src="libicucore.tbd" />
         <framework src="libz.tbd" />
-        <framework src="libstdc++.tbd" />
+        <framework src="libc++.tbd" />
         <framework src="JavaScriptCore.framework" />
         <!-- Wechat and QQ friend Zone and sina required frameworks -->
         <framework src="libsqlite3.tbd" />
         <!-- sina required frameworks -->
         <framework src="ImageIO.framework" />
+        <framework src="Photos.framework" />
         <!-- Wechat Official -->
         <framework src="src/ios/SDK/ShareSDK/Support/PlatformConnector/WechatConnector.framework" custom="true" />
         <source-file src="src/ios/SDK/ShareSDK/Support/PlatformSDK/WeChatSDK/libWeChatSDK.a" framework="true" />
