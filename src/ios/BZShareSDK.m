@@ -31,7 +31,7 @@ int const QQ_CLIENT = 3;
 
 - (void)pluginInitialize
 {
-    _shareSDKiOSAppKey = [[self.commandDelegate settings] objectForKey:@"sharesdkiosappkey"];
+//    _shareSDKiOSAppKey = [[self.commandDelegate settings] objectForKey:@"sharesdkiosappkey"];
     _wechatAppId = [[self.commandDelegate settings] objectForKey:@"wechatappid"];
     _wechatAppSecret = [[self.commandDelegate settings] objectForKey:@"wechatappsecret"];
     _weiboAppId = [[self.commandDelegate settings] objectForKey:@"weiboappid"];
@@ -61,44 +61,54 @@ int const QQ_CLIENT = 3;
      *  在此事件中写入连接代码。第四个参数则为配置本地社交平台时触发，根据返回的平台类型来配置平台信息。
      *  如果您使用的时服务端托管平台信息时，第二、四项参数可以传入nil，第三项参数则根据服务端托管平台来决定要连接的社交SDK。
      */
-    [ShareSDK registerActivePlatforms:incomingSocialPlatforms onImport:^(SSDKPlatformType platformType) {
+    [ShareSDK registPlatforms:^(SSDKRegister *platformsRegister) {
+        //QQ
+        [platformsRegister setupQQWithAppId:_qqiOSAppId appkey:_qqiOSAppKey];
         
-        switch (platformType)
-        {
-            case SSDKPlatformTypeWechat:
-                [ShareSDKConnector connectWeChat:[WXApi class]];
-                break;
-            case SSDKPlatformTypeSinaWeibo:
-                [ShareSDKConnector connectWeibo:[WeiboSDK class]];
-                break;
-            case SSDKPlatformTypeQQ:
-                [ShareSDKConnector connectQQ:[QQApiInterface class] tencentOAuthClass:[TencentOAuth class]];
-                break;
-            default:
-                break;
-        }
-    } onConfiguration:^(SSDKPlatformType platformType, NSMutableDictionary *appInfo) {
-        switch (platformType)
-        {
-            case SSDKPlatformTypeWechat:
-                [appInfo SSDKSetupWeChatByAppId:_wechatAppId appSecret:_wechatAppSecret];
-                break;
-            case SSDKPlatformTypeSinaWeibo:
-                //设置新浪微博应用信息,其中authType设置为使用SSO＋Web形式授权
-                [appInfo SSDKSetupSinaWeiboByAppKey:_weiboAppId
-                                          appSecret:_weiboAppSecret
-                                        redirectUri:_weiboRedirectUrl
-                                           authType:SSDKAuthTypeBoth];
-                break;
-            case SSDKPlatformTypeQQ:
-                [appInfo SSDKSetupQQByAppId:_qqiOSAppId
-                                     appKey:_qqiOSAppKey
-                                   authType:SSDKAuthTypeBoth];
-                break;
-            default:
-                break;
-        }
+        //微信
+        [platformsRegister setupWeChatWithAppId:_wechatAppId appSecret:_wechatAppSecret];
+
+        //新浪
+        [platformsRegister setupSinaWeiboWithAppkey:_weiboAppId appSecret:_weiboAppSecret redirectUrl:_weiboRedirectUrl];
     }];
+//    [ShareSDK registerActivePlatforms:incomingSocialPlatforms onImport:^(SSDKPlatformType platformType) {
+//
+//        switch (platformType)
+//        {
+//            case SSDKPlatformTypeWechat:
+//                [ShareSDKConnector connectWeChat:[WXApi class]];
+//                break;
+//            case SSDKPlatformTypeSinaWeibo:
+//                [ShareSDKConnector connectWeibo:[WeiboSDK class]];
+//                break;
+//            case SSDKPlatformTypeQQ:
+//                [ShareSDKConnector connectQQ:[QQApiInterface class] tencentOAuthClass:[TencentOAuth class]];
+//                break;
+//            default:
+//                break;
+//        }
+//    } onConfiguration:^(SSDKPlatformType platformType, NSMutableDictionary *appInfo) {
+//        switch (platformType)
+//        {
+//            case SSDKPlatformTypeWechat:
+//                [appInfo SSDKSetupWeChatByAppId:_wechatAppId appSecret:_wechatAppSecret];
+//                break;
+//            case SSDKPlatformTypeSinaWeibo:
+//                //设置新浪微博应用信息,其中authType设置为使用SSO＋Web形式授权
+//                [appInfo SSDKSetupSinaWeiboByAppKey:_weiboAppId
+//                                          appSecret:_weiboAppSecret
+//                                        redirectUri:_weiboRedirectUrl
+//                                           authType:SSDKAuthTypeBoth];
+//                break;
+//            case SSDKPlatformTypeQQ:
+//                [appInfo SSDKSetupQQByAppId:_qqiOSAppId
+//                                     appKey:_qqiOSAppKey
+//                                   authType:SSDKAuthTypeBoth];
+//                break;
+//            default:
+//                break;
+//        }
+//    }];
 }
 
 
@@ -131,7 +141,6 @@ int const QQ_CLIENT = 3;
     NSNumber* platformType = [command.arguments objectAtIndex:0];
     NSNumber* shareType = [command.arguments objectAtIndex:1];
     NSDictionary* shareInfo = [command.arguments objectAtIndex:2];
-    
     switch ([shareType integerValue]) {
         case SSDKContentTypeText:
             if([platformType integerValue] == SSDKPlatformTypeCopy) {
@@ -169,7 +178,7 @@ int const QQ_CLIENT = 3;
                                       title:nil
                                        type:SSDKContentTypeText];
     //使用客户端分享，如果没有安装客户端，使用网页分享（对于新浪微博）
-    [shareParams SSDKEnableUseClientShare];
+//    [shareParams SSDKEnableUseClientShare];
     //进行分享
     [ShareSDK share:[platformType integerValue] //传入分享的平台类型
          parameters:shareParams
@@ -188,12 +197,14 @@ int const QQ_CLIENT = 3;
                                       title:nil
                                        type:SSDKContentTypeImage];
     //使用客户端分享，如果没有安装客户端，使用网页分享（对于新浪微博）
-    [shareParams SSDKEnableUseClientShare];
+//    [shareParams SSDKEnableUseClientShare];
+    NSLog(@"ininin %@", [shareInfo objectForKey:@"image"]);
     //进行分享
     [ShareSDK share:[platformType integerValue] //传入分享的平台类型
          parameters:shareParams
      onStateChanged:^(SSDKResponseState state, NSDictionary *userData, SSDKContentEntity *contentEntity, NSError *error)
      {
+         NSLog(@"%@", error);
          [self returnStateToTrigger:state error:error];
      }];
 }
@@ -207,7 +218,7 @@ int const QQ_CLIENT = 3;
                                       title:[shareInfo objectForKey:@"title"]
                                        type:SSDKContentTypeWebPage];
     //使用客户端分享，如果没有安装客户端，使用网页分享（对于新浪微博）
-    [shareParams SSDKEnableUseClientShare];
+//    [shareParams SSDKEnableUseClientShare];
     //进行分享
     [ShareSDK share:[platformType integerValue] //传入分享的平台类型
          parameters:shareParams
